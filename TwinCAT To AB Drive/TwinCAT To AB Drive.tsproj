@@ -1822,23 +1822,6 @@ External Setpoint Generation:
 				</Instance>
 			</Project>
 		</Plc>
-		<Safety>
-			<Project GUID="{227B04CF-605E-42C1-82F4-6457168EE4A5}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.splcProj" TmcFilePath="Untitled1\Untitled1.tmc" GeneralArchiveSettings="#x000f" TargetArchiveSettings="#x0007" FileArchiveSettings="#x000e">
-				<Instance Id="#x01010010" KeepUnrestoredLinks="2">
-					<Name>Untitled1 Instance</Name>
-					<TmcDesc GUID="{72A6D5B8-E98C-4604-8B90-09D1F8AB38A9}">
-						<Name>Safety</Name>
-						<InitSequence>PO</InitSequence>
-						<Contexts>
-							<Context>
-								<Id>1</Id>
-								<Name>Default</Name>
-							</Context>
-						</Contexts>
-					</TmcDesc>
-				</Instance>
-			</Project>
-		</Safety>
 		<Io>
 			<Device Id="2" DevType="133" AmsPort="28674" AmsNetId="5.109.28.196.3.1" RemoteName="Device 2 (TC3 EIP Scanner)">
 				<Name>Device 2 (TC3 EIP Scanner)</Name>
