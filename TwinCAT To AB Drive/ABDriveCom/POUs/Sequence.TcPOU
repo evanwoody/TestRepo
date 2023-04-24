@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Sequence" Id="{3a0619a8-64b5-470a-8740-2002e2c42256}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Sequence
+
+VAR
+	Seq : INT;
+	PositionInfo : ARRAY [0..9] OF LREAL; 
+	VelocityInfo : ARRAY [0..9] OF LREAL;	
+	i : INT;
+END_VAR
+
+VAR_OUTPUT
+	bEnable	: BOOL;
+	bReset	: BOOL;
+	Position : LREAL;
+	Velocity : LREAL;
+	ExecuteMove : BOOL;
+END_VAR
+
+VAR_IN_OUT
+	StartSeq : BOOL;
+	bRunContinuous : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[MAIN.Axis1.ReadStatus();
+
+PositionInfo[0] := 1000.0;		velocityInfo[0] := 5000.0;  
+PositionInfo[1] := 	  0.0;		velocityInfo[1] := 1000.0;
+PositionInfo[2] := 2000.0;		velocityInfo[2] := 600.0;
+PositionInfo[3] := 1500.0;		velocityInfo[3] := 100.0;
+PositionInfo[4] :=  -50.1;		velocityInfo[4] := 5000.0;
+PositionInfo[5] := -950.0;		velocityInfo[5] := 5000.0;
+PositionInfo[6] :=  500.0;		velocityInfo[6] := 2000.0;
+PositionInfo[7] :=    5.2;		velocityInfo[7] := 5000.0;
+PositionInfo[8] := -525.7;		velocityInfo[8] := 500.0;
+PositionInfo[9] :=   45.5;		velocityInfo[9] := 1000.0;
+
+CASE Seq OF 
+	0:
+		IF StartSeq THEN
+			Seq := 1;
+		END_IF
+		
+	1:
+		bEnable := TRUE;
+		IF MAIN.Axis1Power.Active THEN
+			Seq := 5;
+		END_IF
+	
+	5: 
+		bReset := TRUE;
+		IF MAIN.Axis1Reset.Done THEN
+			bReset := FALSE;
+			Seq := 10;
+		END_IF
+	
+	10:
+		Position := PositionInfo[i];
+		Velocity := VelocityInfo[i];
+		IF MAIN.Axis1.Status.Operational THEN
+			ExecuteMove := TRUE;
+			Seq := 15;
+		END_IF
+		
+		
+	15:
+		IF MAIN.Axis1Move.Done THEN
+			ExecuteMove := FALSE;
+			Seq := 20;
+		ELSIF MAIN.Axis1.Status.Error THEN
+			ExecuteMove := FALSE;
+			StartSeq := FALSE;	
+			Seq := 0;
+		END_IF
+	
+	20:
+		i := i+1;
+		
+		IF i < 10 THEN
+			Seq := 10;
+		ELSIF i > 10 AND NOT bRunContinuous THEN
+			i := 0;	
+			Seq := 0;
+			StartSeq := FALSE;
+			bEnable := FALSE;
+		ELSIF i > 10 AND bRunContinuous THEN
+			i := 0;
+			Seq := 10;
+		END_IF	
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="Sequence">
+      <LineId Id="92" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="43" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="52" Count="4" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="13" Count="2" />
+      <LineId Id="20" Count="2" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="28" Count="4" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="76" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="60" Count="3" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="98" Count="3" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="68" Count="1" />
+      <LineId Id="80" Count="1" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="77" Count="1" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="95" Count="2" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

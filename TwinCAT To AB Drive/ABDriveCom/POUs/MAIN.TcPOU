@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{296e0e14-2a1f-42bc-8800-e3e7e32d78f2}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+  Axis1 : AXIS_REF;
+  Axis1Power 	: MC_Power;
+  Axis1Move		: MC_MoveAbsolute;
+  Axis1Jog		: MC_Jog;
+  Axis1Reset	: MC_Reset;
+  Axis1Home		: MC_Home;
+  
+  
+	bABEnable		AT	%I* : BOOL;
+	bABExecuteMove AT %I*: BOOL;
+	bABJogForward		AT	%I* : BOOL;
+	bABJogBackward	 AT	%I* : BOOL;
+	bABAxisReset	 AT	%I* : BOOL;
+	bABResetDone	AT %Q*: BOOL;
+	bABMoveDone AT %Q*: BOOL;
+	bABError AT %Q*: BOOL;
+	
+	ProgramStep AT %I* :DINT;
+	
+	TwinCAT_bEnable	AT %Q*: BOOL;
+	TwinCAT_bReset AT %Q*: BOOL;
+	TwinCAT_jogFwd AT %Q*: BOOL;
+	TwinCAT_jogBack AT %Q*: BOOL;
+	TwinCAT_StartProgram AT %Q*: BOOL;
+	
+	AB_Connected AT %I* :UINT;
+	DriveErrorCode : UDINT ; ///	AT %I* :UDINT;
+
+	LinkError: BOOL;
+	bExecuteHome: BOOL;
+	
+	bEnable			 : BOOL;
+	bExecuteMove	 : BOOL;
+	bJogForward		 : BOOL;
+	bJogBackward	 : BOOL;
+	bAxisReset	 	 : BOOL;
+	bResetDone		 : BOOL;
+	bMoveDone 		 : BOOL;
+	bError 			 : BOOL;
+	
+	Position		 : LREAL;
+	Velocity		 : LREAL;
+
+	StartSeq			: BOOL;
+	Sequence 		: Sequence;
+	bRunContinuous	: BOOL;
+	bJogEnable: BOOL;
+	bJogReset: BOOL;
+	
+	ContollerStart AT %I* : BOOL;
+	
+	
+	//SAFETY TEST
+	ErrorAck AT %Q* : BOOL;
+	Reset	AT %Q* : BOOL;
+	RUN		AT %Q* : BOOL;
+	Test	AT %Q* : BOOL;
+	Test2	AT %Q* : BOOL;
+END_VAR
+
+	
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Axis1Power(
+	Axis:= Axis1, 
+	Enable:= bABEnable OR bEnable OR bJogEnable, 
+	Enable_Positive:= bABEnable OR bEnable OR bJogEnable, 
+	Enable_Negative:= bABEnable OR bEnable OR bJogEnable, 
+	Override:= 100, 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> bError, 
+	ErrorID=> DriveErrorCode);
+	
+Axis1Jog(
+	Axis:= Axis1, 
+	JogForward:= bABJogForward OR bJogForward, 
+	JogBackwards:= bABJogBackward OR bJogBackward, 
+	Mode:= E_JogMode.MC_JOGMODE_STANDARD_SLOW, 
+	Position:= , 
+	Velocity:= 100, 
+	Acceleration:= 10000, 
+	Deceleration:= 10000, 
+	Jerk:= 10000, 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+Axis1Move(
+	Axis:= Axis1, 
+	Execute:= bABExecuteMove OR bExecuteMove, 
+	Position:= Position, 
+	Velocity:= Velocity, 
+	Acceleration:= 5000, 
+	Deceleration:= 5000, 
+	Jerk:= 10000, 
+	BufferMode:= , 
+	Options:= , 
+	Done=> bMoveDone, 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );	
+	
+Axis1Reset(
+	Axis:= Axis1, 
+	Execute:= bABAxisReset OR bAxisReset OR bJogReset, 
+	Done=> bResetDone, 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );	
+	
+Axis1Home(
+	Axis:= Axis1, 
+	Execute:= bExecuteHome, 
+	Position:= 0, 
+	HomingMode:= MC_Direct, 
+	BufferMode:= , 
+	Options:= , 
+	bCalibrationCam:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );	
+	
+IF AB_Connected >= 1 THEN
+	LinkError := TRUE;
+ELSE
+	LinkError := FALSE;	
+END_IF	
+
+Sequence(StartSeq := StartSeq,
+		 bEnable => bEnable,
+		 bReset => bAxisReset,
+		 Position => Position,
+		 Velocity => Velocity,
+		 ExecuteMove => bExecuteMove,
+		bRunContinuous := bRunContinuous);
+		 
+IF ContollerStart THEN
+	StartSeq := TRUE;
+END_IF		]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="15" Count="11" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="29" Count="14" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="45" Count="15" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="79" Count="5" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="125" Count="12" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="116" Count="2" />
+      <LineId Id="121" Count="1" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="191" Count="1" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="205" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
